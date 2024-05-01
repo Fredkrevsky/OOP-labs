@@ -1,10 +1,7 @@
 #include "TObject.h"
+#include <iostream>
 
 TObject::TObject() {
-    x = 0;
-    y = 0;
-    width = 0;
-    height = 0;
     background.setFillColor(Color(230, 230, 230));
     background.setPosition(0, 0);
     background.setSize(Vector2f(0, 0));
@@ -23,6 +20,23 @@ void TObject::setSize(int twidth, int theight) {
     height = theight;
     background.setSize(Vector2f(width, height));
 }
+void TObject::setV(int tvx, int tvy) {
+    vx = tvx;
+    vy = tvy;
+}
+void TObject::getPos(int& tx, int& ty) {
+    tx = x;
+    ty = y;
+}
+void TObject::getSize(int& w, int& h) {
+    w = width;
+    h = height;
+}
+void TObject::getV(int& tvx, int& tvy) {
+    tvx = vx;
+    tvy = vy;
+}
+
 void TObject::setColor(Color color) {
     background.setFillColor(color);
 }

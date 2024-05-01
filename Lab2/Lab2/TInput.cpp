@@ -56,3 +56,44 @@ void TInput::setSize(int w, int h) {
 void TInput::setLimit(int lim) {
 	limit = lim;
 }
+void TInput::setText(std::string toSet) {
+	text.setString(toSet);
+}
+void TInput::serialize(std::ofstream& out) {
+	TObject::serialize(out);
+
+	std::string str = text.getString();
+	char length = str.size();
+	out.write(&length, sizeof(length));
+	out.write(str.c_str(), length);
+	out.write(reinterpret_cast<const char*>(&limit), sizeof(limit));
+}
+void TInput::deserialize(std::ifstream& in) {
+	TObject::deserialize(in);
+
+	char length;
+	in.read(&length, sizeof(length));
+	char* buffer = new char[length + 1];
+	in.read(buffer, length);
+	buffer[length] = '\0';
+	std::string str(buffer);
+	delete[] buffer;
+	setText(str);
+	in.read(&limit, sizeof(limit));
+}
+void TInput::jsonSerialize(json& j) {
+
+	TObject::jsonSerialize(j);
+
+	j["text"] = text.getString();
+	j["limit"] = limit;
+}
+
+void TInput::jsonDeserialize(json& j) {
+
+	TObject::jsonDeserialize(j);
+
+	setText(j["text"]);
+	limit = j["limit"].get<char>();
+	setPos(x, y);
+}

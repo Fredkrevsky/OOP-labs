@@ -12,10 +12,9 @@ public:
     void setSize(int twidth, int theight);
     void onPress();
     void onRelease();
-    void draw(RenderWindow& win);
     void serialize(std::ofstream& out) override;
     void deserialize(std::ifstream& in) override;
-    void jsonSerialize(json& j);
-    void jsonDeserialize(json& j);
+    void jsonSerialize(json& j) override;
+    void jsonDeserialize(json& j) override;
+    void draw(RenderWindow& win) override;
 };
-

@@ -12,7 +12,7 @@ public:
     void setValue(float toSet);
     void serialize(std::ofstream& out) override;
     void deserialize(std::ifstream& in) override;
-    void jsonSerialize(json& j);
-    void jsonDeserialize(json& j);
+    void jsonSerialize(json& j) override;
+    void jsonDeserialize(json& j) override;
 };
 

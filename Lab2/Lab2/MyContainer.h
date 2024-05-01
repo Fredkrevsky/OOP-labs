@@ -2,22 +2,25 @@
 #include <vector>
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include "TObject.h"
 #include "TButton.h"
 #include "TChoice.h"
 #include "TProgressBar.h"
 #include "TAssessBar.h"
+#include "TInput.h"
 #include "TFactory.h"
+#include "gravity.h"
+#include <Windows.h>
 
 class MyContainer
 {
 	std::vector<TObject*> vec;
+	HMODULE hDll;
 	TAssessFactory* assessFactory;
 	TProgressFactory* progressFactory;
 	TChoiceFactory* choiceFactory;
 	TButtonFactory* buttonFactory;
 	TInputFactory* inputFactory;
-	char getchar(Keyboard::Key key);
+	DragFunctionType drag;
 
 public:
 	MyContainer();
@@ -40,5 +43,7 @@ public:
 	void onRightClick(Vector2f pos);
 	void onLeftRelease();
 	void onKeyPress(Keyboard::Key key);
+	void drawAll(RenderWindow& win);
+	void dragAll(int posx, int posy, float gravity);
 };
 

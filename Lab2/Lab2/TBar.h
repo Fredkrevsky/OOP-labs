@@ -16,6 +16,6 @@ protected:
 public:
     void setFirstColor(Color color);
     void setSecondColor(Color color);
-    void draw(RenderWindow& win);
+    void draw(RenderWindow& win) override;
 };
 

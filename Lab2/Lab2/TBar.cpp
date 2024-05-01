@@ -17,7 +17,6 @@ TBar::TBar() : TObject() {
     text.setPosition(0, 0);
     text.setCharacterSize(FontSize);
     text.setString("");
-
 }
 void TBar::setFirstColor(Color color) {
     first.setFillColor(color);

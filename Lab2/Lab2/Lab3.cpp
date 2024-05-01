@@ -1,23 +1,27 @@
 ﻿#include <SFML/Graphics.hpp>
-#include "MyContainer.h";
+#include <Windows.h>
+#include "gravity.h"
+#include "MyContainer.h"
 #define JSON
 
 using namespace sf;
+const int fps = 150;
+const float gravity = 1;
 
 Font font;
 
 int main()
 {
+    font.loadFromFile("Fonts/arialmt.ttf");
+
     std::vector<Text*> vText;
     std::vector<TChoice*> vChoice;
     MyContainer vObjects;
 
     setlocale(LC_ALL, "Rus");
     RenderWindow win(VideoMode(1200, 800), "Lab2", Style::Close);
-    win.setFramerateLimit(150);
+    win.setFramerateLimit(fps);
     win.setVerticalSyncEnabled(true);
-    
-    font.loadFromFile("Fonts/arialmt.ttf");
 
     RectangleShape menu;
     menu.setPosition(0, 0);
@@ -34,10 +38,6 @@ int main()
     Text menuT("Choose what to draw:", font, 24);
     menuT.setFillColor(Color::Black);
     menuT.setPosition(25, 20);
-
-    Text drawspaceT("Draw here:", font, 24);
-    drawspaceT.setFillColor(Color::Black);
-    drawspaceT.setPosition(690, 20);
 
     Text choiceT("Choice", font, 24);
     choiceT.setFillColor(Color::Black);
@@ -60,7 +60,6 @@ int main()
     inputT.setPosition(20, 400);
 
     vText.push_back(&menuT);
-    vText.push_back(&drawspaceT);
     vText.push_back(&choiceT);
     vText.push_back(&buttonT);
     vText.push_back(&assessT);
@@ -100,6 +99,20 @@ int main()
     vChoice.push_back(&choice4);
     vChoice.push_back(&choice5);
 
+    TButton ser;
+    ser.setSize(150, 50);
+    ser.setPos(50, 600);
+    ser.setColor(Color::Green);
+    ser.setText("Save");
+    ser.setThickness(3);
+
+    TButton deser;
+    deser.setSize(150, 50);
+    deser.setPos(50, 700);
+    deser.setColor(Color::Green);
+    deser.setText("Load");
+    deser.setThickness(3);
+
     win.clear();
     win.draw(drawspace);
     win.draw(menu);
@@ -109,24 +122,35 @@ int main()
     for (const auto& elem : vChoice) {
         elem->draw(win);
     }
-
-#ifdef JSON
-    vObjects.jsonDeserialize("data.json");
-#else
-    vObjects.deserialize("data.bin");
-#endif
+    ser.draw(win);
+    deser.draw(win);
 
     win.display();
 
     while (win.isOpen()) {
+        
+        Vector2i pos = Mouse::getPosition(win);
+        vObjects.dragAll(pos.x, pos.y, gravity);
+        win.clear();
+        win.draw(drawspace);
+        win.draw(menu);
+        for (const auto& elem : vText) {
+            win.draw(*elem);
+        }
+        for (const auto& elem : vChoice) {
+            elem->draw(win);
+        }
+        vObjects.drawAll(win);
+        ser.draw(win);
+        deser.draw(win);
+        win.display();
+
         Event event;
         while (win.pollEvent(event)) {
+
+            
+
             if (event.type == Event::Closed) {
-#ifdef JSON
-                vObjects.jsonSerialize("data.json");
-#else
-                vObjects.serialize("data.bin");
-#endif
                 win.close();
             }
             else if (event.type == Event::MouseButtonPressed) {
@@ -146,6 +170,23 @@ int main()
                                 vChoice[i]->setStatus(false);
                             }
                         }
+                    }
+                    else if (ser.isPressed(mousePos)) {
+                        ser.onPress();
+#ifdef JSON
+                        vObjects.jsonSerialize("data.json");
+#else
+                        vObjects.serialize("data.bin");
+#endif
+                    }
+                    else if (deser.isPressed(mousePos)) {
+                        deser.onPress();
+                        vObjects.clear();
+#ifdef JSON
+                        vObjects.jsonDeserialize("data.json");
+#else
+                        vObjects.deserialize("data.bin");
+#endif
                     }
                 }
                 else if (drawspace.getGlobalBounds().contains(mousePos)) {
@@ -167,29 +208,17 @@ int main()
             else if (event.type == Event::MouseButtonReleased) {
                 if (event.mouseButton.button == Mouse::Left) {
                     vObjects.onLeftRelease();
+                    ser.onRelease();
+                    deser.onRelease();
                 }
             }
             else if (event.type == Event::KeyPressed) {
                 Keyboard::Key key = event.key.code;
                 vObjects.onKeyPress(key);
             }
-            win.clear();
-            win.draw(drawspace);
-            win.draw(menu);
-            for (const auto& elem : vText) {
-                win.draw(*elem);
-            }
-            for (const auto& elem : vChoice) {
-                elem->draw(win);
-            }
-            for (int i = 0; i < vObjects.size(); i++) {
-                vObjects[i]->draw(win);
-            }
-            win.display();
         }
 
     }
-
     return 0;
 }
 

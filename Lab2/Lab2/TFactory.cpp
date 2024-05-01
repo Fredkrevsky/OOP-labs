@@ -41,6 +41,7 @@ TObject* TButtonFactory::create() {
 TObject* TInputFactory::create() {
     TInput* temp = new TInput();
     temp->setSize(300, 40);
-    temp->setThickness(3);
+    temp->setThickness(5);
+    temp->setLimit(18);
     return temp;
 }

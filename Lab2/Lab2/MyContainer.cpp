@@ -6,14 +6,25 @@ MyContainer::MyContainer() {
 	choiceFactory = new TChoiceFactory();
 	buttonFactory = new TButtonFactory();
 	inputFactory = new TInputFactory();
+	
+	hDll = LoadLibrary(L"Dll1.dll");
+	if (hDll == NULL) {
+		return;
+	}
+	drag = (DragFunctionType)GetProcAddress(hDll, "drag");
+	if (drag == NULL) {
+		FreeLibrary(hDll);
+		return;
+	}
 }
 MyContainer::~MyContainer() {
 	delete assessFactory;
 	delete progressFactory;
 	delete buttonFactory;
 	delete choiceFactory;
-	delete inputFactory;
-	clear();
+	if (hDll) {
+		FreeLibrary(hDll);
+	}
 }
 void MyContainer::add(TObject* obj) {
 	vec.push_back(obj);
@@ -22,6 +33,7 @@ void MyContainer::clear() {
 	for (int i = 0; i < vec.size(); i++) {
 		delete vec[i];
 	}
+	vec.clear();
 }
 int MyContainer::size() {
 	return vec.size();
@@ -36,7 +48,6 @@ void MyContainer::serialize(std::string path) {
 	char type;
 
 	for (TObject* ptr : vec) {
-
 		if (TAssessBar* derivedPtr = dynamic_cast<TAssessBar*>(ptr)) {
 			type = 0;
 			out.write(&type, 1);
@@ -54,6 +65,11 @@ void MyContainer::serialize(std::string path) {
 		}
 		else if (TChoice* derivedPtr = dynamic_cast<TChoice*>(ptr)) {
 			type = 3;
+			out.write(&type, 1);
+			derivedPtr->serialize(out);
+		}
+		else if (TInput* derivedPtr = dynamic_cast<TInput*>(ptr)) {
+			type = 4;
 			out.write(&type, 1);
 			derivedPtr->serialize(out);
 		}
@@ -91,6 +107,11 @@ void MyContainer::deserialize(std::string path) {
 			static_cast<TChoice*>(temp)->deserialize(in);
 			add(temp);
 			break;
+		case 4:
+			temp = new TInput();
+			static_cast<TInput*>(temp)->deserialize(in);
+			add(temp);
+			break;
 		}
 	}
 
@@ -123,6 +144,12 @@ void MyContainer::jsonSerialize(std::string path) {
 		else if (TChoice* derivedPtr = dynamic_cast<TChoice*>(ptr)) {
 			json j;
 			j["type"] = 3;
+			derivedPtr->jsonSerialize(j);
+			out << j.dump(4);
+		}
+		else if (TInput* derivedPtr = dynamic_cast<TInput*>(ptr)) {
+			json j;
+			j["type"] = 4;
 			derivedPtr->jsonSerialize(j);
 			out << j.dump(4);
 		}
@@ -165,11 +192,15 @@ void MyContainer::jsonDeserialize(std::string path) {
 			static_cast<TChoice*>(temp)->jsonDeserialize(j);
 			add(temp);
 			break;
+		case 4:
+		    temp = new TInput();
+			static_cast<TInput*>(temp)->jsonDeserialize(j);
+			add(temp);
+			break;
 		}
 	}
 
 	in.close();
-
 }
 void MyContainer::onLeftClick(Vector2f pos, int tindex) {
 	TObject* temp;
@@ -221,7 +252,7 @@ void MyContainer::onLeftClick(Vector2f pos, int tindex) {
 			temp->setPos(pos.x, pos.y);
 			add(temp);
 			break;
-		case 4:
+	    case 4:
 			temp = inputFactory->create();
 			temp->setPos(pos.x, pos.y);
 			add(temp);
@@ -248,10 +279,50 @@ void MyContainer::onLeftRelease() {
 		}
 	}
 }
+
 void MyContainer::onKeyPress(Keyboard::Key key) {
 	for (TObject* ptr : vec) {
 		if (TInput* derivedPtr = dynamic_cast<TInput*>(ptr)) {
 			derivedPtr->onKeyPress(key);
+		}
+	}
+}
+void MyContainer::drawAll(RenderWindow& win) {
+	for (const auto& elem : vec) {
+		elem->draw(win);
+	}
+}
+void MyContainer::dragAll(int posx, int posy, float gravity) {
+	if (drag) {
+		for (const auto& elem : vec) {
+			coord data = {};
+			int t1, t2;
+			elem->getPos(t1, t2);
+			data[0] = t1;
+			data[1] = t2;
+
+			elem->getSize(t1, t2);
+			data[2] = t1;
+			data[3] = t2;
+
+			data[4] = posx;
+			data[5] = posy;
+			data[6] = 300;
+			data[7] = 50;
+			data[8] = 1200;
+			data[9] = 700;
+
+			elem->getV(t1, t2);
+			data[10] = t1;
+			data[11] = t2;
+
+			drag(data, gravity);
+			t1 = data[0];
+			t2 = data[1];
+			elem->setPos(t1, t2);
+			t1 = data[10];
+			t2 = data[11];
+			elem->setV(t1, t2);
 		}
 	}
 }

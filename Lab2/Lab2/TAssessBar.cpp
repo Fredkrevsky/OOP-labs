@@ -120,7 +120,6 @@ void TAssessBar::jsonSerialize(json& j) {
 
     j["value"] = value;
 }
-
 void TAssessBar::jsonDeserialize(json& j) {
     
     TObject::jsonDeserialize(j);

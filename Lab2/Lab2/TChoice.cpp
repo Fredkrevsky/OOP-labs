@@ -17,16 +17,17 @@ void TChoice::setSize(int twidth, int theight) {
 }
 void TChoice::onPress() {
     isSelected = !isSelected;
+    setStatus(isSelected);
 }
 void TChoice::onRelease() { }
+void TChoice::setStatus(bool status) {
+    isSelected = status;
+}
 void TChoice::draw(RenderWindow& win) {
     TObject::draw(win);
     if (isSelected) {
         win.draw(in);
     }
-}
-void TChoice::setStatus(bool status) {
-    isSelected = status;
 }
 bool TChoice::getStatus() {
     return isSelected;

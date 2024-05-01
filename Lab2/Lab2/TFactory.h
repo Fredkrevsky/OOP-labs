@@ -41,4 +41,3 @@ class TInputFactory : public TFactory
 public:
     TObject* create();
 };
-
