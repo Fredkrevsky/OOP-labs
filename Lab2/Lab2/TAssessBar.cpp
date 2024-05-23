@@ -39,7 +39,7 @@ inline void TAssessBar::setString() {
         }
         else {
             result = std::to_string(toSet);
-            int dot = result.find(',');
+            int dot = result.find('.');
             result = result.substr(0, dot + 2);
             result[dot] = '.';
         }
@@ -102,6 +102,7 @@ void TAssessBar::deserialize(std::ifstream& in) {
     in.read(reinterpret_cast<char*>(&tvalue), sizeof(tvalue));
     setValue(tvalue);
 }
+
 void TAssessBar::jsonSerialize(json& j) {
 
     TObject::jsonSerialize(j);

@@ -1,6 +1,7 @@
 #pragma once
 #include "TClickable.h"
 
+
 class TButton : public TClickable {
     Text text;
     int len;

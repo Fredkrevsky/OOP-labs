@@ -20,10 +20,6 @@ void TObject::setSize(int twidth, int theight) {
     height = theight;
     background.setSize(Vector2f(width, height));
 }
-void TObject::setV(int tvx, int tvy) {
-    vx = tvx;
-    vy = tvy;
-}
 void TObject::getPos(int& tx, int& ty) {
     tx = x;
     ty = y;
@@ -31,10 +27,6 @@ void TObject::getPos(int& tx, int& ty) {
 void TObject::getSize(int& w, int& h) {
     w = width;
     h = height;
-}
-void TObject::getV(int& tvx, int& tvy) {
-    tvx = vx;
-    tvy = vy;
 }
 
 void TObject::setColor(Color color) {
@@ -76,6 +68,7 @@ void TObject::deserialize(std::ifstream& in) {
     in.read(reinterpret_cast<char*>(&thick), sizeof(thick));
     background.setOutlineThickness(thick);
 }
+
 void TObject::jsonSerialize(json& j) {
 
     j["x"] = x;

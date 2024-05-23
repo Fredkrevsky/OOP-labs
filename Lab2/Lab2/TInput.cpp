@@ -95,5 +95,4 @@ void TInput::jsonDeserialize(json& j) {
 
 	setText(j["text"]);
 	limit = j["limit"].get<char>();
-	setPos(x, y);
 }
